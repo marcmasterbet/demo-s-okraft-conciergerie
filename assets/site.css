@@ -616,3 +616,9 @@ table a { color: inherit; text-decoration-color: var(--line); }
   .lb .lb-prev, .lb .lb-next { top: 50%; bottom: auto; transform: translateY(-50%); width: 36px; height: 36px; background: rgba(15, 23, 25, .55); }
   .lb .lb-prev { left: 6px; } .lb .lb-next { right: 6px; }
 }
+
+/* Logo Seokraft */
+.brand { gap: 5px; }
+.brand-name { font-family: var(--label); font-weight: 800; font-size: 1.2rem; letter-spacing: -0.045em; text-transform: uppercase; line-height: 1; }
+.brand-sub { font-family: var(--body); font-weight: 500; font-size: 0.625rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); opacity: .8; }
+@media (max-width: 420px) { .brand-sub { font-size: 0.5rem; letter-spacing: 0.16em; } }
