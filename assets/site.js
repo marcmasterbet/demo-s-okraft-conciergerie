@@ -542,3 +542,6 @@
     lb.querySelector(".lb-close").focus();
   }
 })();
+
+/* Les formulaires de réglage (simulateur) ne se soumettent jamais */
+document.querySelectorAll("#sim2 form").forEach(f => f.addEventListener("submit", e => e.preventDefault()));
