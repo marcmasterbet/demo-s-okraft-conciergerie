@@ -244,6 +244,14 @@
 
   let counter = 0;
   function render(el) {
+    const photo = el.dataset.img && window.SK_IMG && window.SK_IMG[el.dataset.img];
+    if (photo) {
+      const img = document.createElement("img");
+      img.src = photo; img.alt = el.getAttribute("aria-label") || ""; img.loading = "lazy"; img.decoding = "async";
+      img.className = "plate-photo";
+      el.removeAttribute("role"); el.insertAdjacentElement("afterbegin", img); el.classList.add("has-photo");
+      return;
+    }
     const type = el.dataset.plate, time = el.dataset.time || Object.keys(PAL[type] || {})[0], view = el.dataset.view || "paysage";
     if (!SCENES[type]) return;
     const p = PAL[type][time] || PAL[type][Object.keys(PAL[type])[0]];
