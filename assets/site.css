@@ -423,3 +423,18 @@ input[type="range"] { accent-color: var(--accent); width: 100%; }
 .prose { align-content: start; }
 .pillars.three { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
 @media (min-width: 980px) { .pillars.three { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Simulateur multi-logements */
+.units-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.units { display: grid; gap: 10px; }
+.unit { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 14px; background: var(--ground); display: grid; gap: 10px; }
+.unit-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.unit-n { font-family: var(--label); font-size: 0.625rem; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; }
+.unit-del { background: none; border: 0; color: var(--muted); font: 500 0.8125rem var(--body); cursor: pointer; text-decoration: underline; padding: 4px; }
+.unit-del:hover { color: var(--ink); }
+.unit .field input, .unit .field select { background: var(--surface); }
+#u-add { justify-self: start; }
+.tcap { caption-side: top; text-align: left; font-size: 0.8125rem; font-weight: 600; padding: 12px 16px 4px; }
+.sim-table td.gain { color: var(--accent); font-weight: 600; }
+
+.sim-table thead th { white-space: nowrap; }

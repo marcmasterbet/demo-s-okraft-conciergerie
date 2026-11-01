@@ -67,20 +67,13 @@
     <div class="section-head">
       <p class="place">Simulateur</p>
       <h2>Combien vous rapporte <em style="color:var(--accent)">la réservation directe&nbsp;?</em></h2>
-      <p class="lede">On ne quitte pas Airbnb et Booking du jour au lendemain. Indiquez votre logement : le simulateur calcule ce qu'il vous reste chaque année, à mesure que la part de réservations directes augmente.</p>
+      <p class="lede">On ne quitte pas Airbnb et Booking du jour au lendemain. Ajoutez un ou plusieurs logements : le simulateur calcule ce qu'il vous reste chaque année, pour tout votre parc, à mesure que la part de réservations directes augmente.</p>
     </div>
     <div class="sim" id="sim2">
       <form class="form" onsubmit="return false" aria-label="Paramètres de la simulation">
-        <label class="field" for="p-type">Type de logement<select id="p-type">
-          <option value="studio">Studio en ville</option>
-          <option value="appart" selected>Appartement familial</option>
-          <option value="gite">Gîte ou maison</option>
-          <option value="villa">Villa haut de gamme</option>
-        </select></label>
-        <div class="fields">
-          <label class="field" for="p-price">Prix moyen par nuit (€)<input type="number" id="p-price" min="20" step="5" value="130"></label>
-          <label class="field" for="p-occ">Taux d'occupation : <strong id="p-occ-out">68 %</strong><input type="range" id="p-occ" min="20" max="95" step="1" value="68"></label>
-        </div>
+        <div class="units-head"><strong>Vos logements</strong><span class="note" id="u-count">1 logement</span></div>
+        <div class="units" id="units"></div>
+        <button type="button" class="btn ghost small" id="u-add">+ Ajouter un logement</button>
         <label class="field" for="p-goal">Part de réservations directes visée la 3e année : <strong id="p-goal-out">50 %</strong><input type="range" id="p-goal" min="0" max="80" step="5" value="50"></label>
         <details class="hyp">
           <summary>Modifier les hypothèses</summary>
@@ -103,13 +96,21 @@
         </div>
 
         <figure class="ychart" aria-labelledby="ychart-cap">
-          <figcaption id="ychart-cap">Revenu net pour vous, par an</figcaption>
+          <figcaption id="ychart-cap">Revenu net pour vous, par an, tous logements confondus</figcaption>
           <div class="ychart-plot" id="ychart" role="img" aria-label="Revenu net annuel du propriétaire selon la part de réservations directes"></div>
           <div class="ychart-legend"><span><i class="sw base"></i>100 % plateformes</span><span><i class="sw direct"></i>Avec réservation directe</span></div>
         </figure>
 
+        <div class="table-wrap" id="u-table-wrap">
+          <table class="sim-table">
+            <caption class="tcap">Détail par logement</caption>
+            <thead><tr><th scope="col">Logement</th><th scope="col">Loyers / an</th><th scope="col">Net aujourd'hui</th><th scope="col">Net année 3</th><th scope="col">Gain année 3</th></tr></thead>
+            <tbody id="u-rows"></tbody>
+          </table>
+        </div>
         <div class="table-wrap">
           <table class="sim-table">
+            <caption class="tcap">Total de votre parc, année par année</caption>
             <thead><tr><th scope="col"></th><th scope="col">Aujourd'hui</th><th scope="col">Année 1</th><th scope="col">Année 2</th><th scope="col">Année 3</th></tr></thead>
             <tbody id="o-rows"></tbody>
           </table>

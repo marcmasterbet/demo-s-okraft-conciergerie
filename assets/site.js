@@ -327,18 +327,68 @@
   const sim = document.getElementById("sim2");
   if (sim) {
     const $ = s => sim.querySelector(s);
-    const PRESETS = { studio: [85, 74], appart: [130, 68], gite: [250, 55], villa: [900, 40] };
-    $("#p-type").addEventListener("change", () => { const [pr, oc] = PRESETS[$("#p-type").value]; $("#p-price").value = pr; $("#p-occ").value = oc; run(); });
-    sim.querySelectorAll("input").forEach(i => i.addEventListener("input", run));
+    const PRESETS = {
+      studio: { label: "Studio en ville", price: 85, occ: 74 },
+      appart: { label: "Appartement familial", price: 130, occ: 68 },
+      gite: { label: "Gîte ou maison", price: 250, occ: 55 },
+      villa: { label: "Villa haut de gamme", price: 900, occ: 40 }
+    };
+    let uid = 0;
+    const units = [];
+    const unitsEl = $("#units");
+    function addUnit(type) {
+      const pr = PRESETS[type];
+      units.push({ id: ++uid, type, name: "", qty: 1, price: pr.price, occ: pr.occ });
+      drawUnits(); run();
+    }
+    function drawUnits() {
+      unitsEl.innerHTML = units.map((u, i) => `
+        <div class="unit" data-id="${u.id}">
+          <div class="unit-top">
+            <span class="unit-n">Logement ${i + 1}</span>
+            ${units.length > 1 ? `<button type="button" class="unit-del" data-del="${u.id}" aria-label="Retirer le logement ${i + 1}">Retirer</button>` : ""}
+          </div>
+          <div class="fields">
+            <label class="field full" for="u${u.id}-type">Type<select id="u${u.id}-type" data-k="type">${Object.entries(PRESETS).map(([k, v]) => `<option value="${k}"${k === u.type ? " selected" : ""}>${v.label}</option>`).join("")}</select></label>
+            <label class="field" for="u${u.id}-qty">Nombre<input type="number" id="u${u.id}-qty" data-k="qty" min="1" max="50" step="1" value="${u.qty}"></label>
+            <label class="field" for="u${u.id}-price">Prix moyen / nuit (€)<input type="number" id="u${u.id}-price" data-k="price" min="20" step="5" value="${u.price}"></label>
+            <label class="field full" for="u${u.id}-occ">Taux d'occupation : <strong data-out>${u.occ} %</strong><input type="range" id="u${u.id}-occ" data-k="occ" min="20" max="95" step="1" value="${u.occ}"></label>
+          </div>
+        </div>`).join("");
+      $("#u-count").textContent = (() => { const n = units.reduce((t, u) => t + u.qty, 0); return n + (n > 1 ? " logements" : " logement"); })();
+    }
+    unitsEl.addEventListener("input", e => {
+      const box = e.target.closest(".unit"); if (!box) return;
+      const u = units.find(x => x.id === Number(box.dataset.id)), k = e.target.dataset.k;
+      if (k === "type") { const pr = PRESETS[e.target.value]; u.type = e.target.value; u.price = pr.price; u.occ = pr.occ; drawUnits(); }
+      else if (k === "qty") u.qty = Math.max(1, Math.min(50, Math.round(Number(e.target.value) || 1)));
+      else if (k === "price") u.price = Math.max(0, Number(e.target.value) || 0);
+      else if (k === "occ") { u.occ = Number(e.target.value); box.querySelector("[data-out]").textContent = u.occ + " %"; }
+      if (k === "qty") $("#u-count").textContent = (() => { const n = units.reduce((t, x) => t + x.qty, 0); return n + (n > 1 ? " logements" : " logement"); })();
+      run();
+    });
+    unitsEl.addEventListener("click", e => {
+      const d = e.target.closest("[data-del]"); if (!d) return;
+      const i = units.findIndex(x => x.id === Number(d.dataset.del)); if (i > -1) units.splice(i, 1);
+      drawUnits(); run();
+    });
+    $("#u-add").addEventListener("click", () => { addUnit(units.length % 2 ? "appart" : "studio"); const last = unitsEl.lastElementChild; last && last.querySelector("select").focus(); });
+    ["#p-goal", "#p-air", "#p-boo", "#p-split", "#p-pay", "#p-fee"].forEach(s => $(s).addEventListener("input", run));
     const chart = document.getElementById("ychart");
 
     function run() {
-      const price = Math.max(0, Number($("#p-price").value) || 0), occ = Number($("#p-occ").value) / 100, goal = Number($("#p-goal").value) / 100;
+      const goal = Number($("#p-goal").value) / 100;
       const air = Number($("#p-air").value) / 100, boo = Number($("#p-boo").value) / 100, split = Math.min(1, Math.max(0, Number($("#p-split").value) / 100));
       const pay = Number($("#p-pay").value) / 100, fee = Number($("#p-fee").value) / 100;
-      $("#p-occ-out").textContent = Math.round(occ * 100) + " %";
       $("#p-goal-out").textContent = Math.round(goal * 100) + " %";
-      const gross = price * 365 * occ, plat = split * air + (1 - split) * boo;
+      const plat = split * air + (1 - split) * boo;
+      const unitGross = u => u.price * 365 * (u.occ / 100) * u.qty;
+      const gross = units.reduce((t, u) => t + unitGross(u), 0);
+      const netOf = (g, d) => g - (g * (1 - d) * plat + g * d * pay) - g * fee;
+      document.getElementById("u-rows").innerHTML = units.map((u, i) => {
+        const g = unitGross(u), n0 = netOf(g, 0), n3 = netOf(g, goal);
+        return `<tr><th scope="row">${u.qty > 1 ? u.qty + " × " : ""}${PRESETS[u.type].label}<br><span class="note">${fmt.format(u.price)} / nuit · ${u.occ} %</span></th><td>${fmt.format(g)}</td><td>${fmt.format(n0)}</td><td>${fmt.format(n3)}</td><td class="gain">+ ${fmt.format(n3 - n0)}</td></tr>`;
+      }).join("");
       const shares = [0, goal * 0.3, goal * 0.65, goal];
       const years = shares.map(d => {
         const comm = gross * (1 - d) * plat + gross * d * pay, hon = gross * fee;
@@ -372,7 +422,7 @@
         </div>`;
       }).join("");
     }
-    run();
+    addUnit("studio"); addUnit("appart");
   }
 
   /* ---------- Formulaire d'estimation ---------- */
