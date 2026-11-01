@@ -1,30 +1,34 @@
 /* Seokraft Conciergerie — site de démonstration.
-   Toutes les maisons, disponibilités et réservations sont fictives.
+   Tous les logements, disponibilités et réservations sont fictives.
    Le point de branchement Autonomya est la fonction AUTONOMYA.book() plus bas. */
 (function () {
   "use strict";
 
-  /* ---------- Données des maisons ---------- */
+  /* ---------- Données des logements ---------- */
   const HOMES = {
+    heron: {
+      name: "Studio Héron", place: "Strasbourg, Petite France", type: "ville",
+      guests: 2, rooms: 1, baths: 1, area: 28, cleaning: 45, deposit: 300, density: 0.35,
+      rates: { basse: 79, moyenne: 95, haute: 139 }, minN: { basse: 1, moyenne: 1, haute: 2 }, seasonModel: "ville",
+      extras: [{ id: "early", label: "Arrivée anticipée dès 12 h", price: 25, per: "séjour" }, { id: "bfast", label: "Panier petit-déjeuner local", price: 14, per: "personne/jour" }, { id: "park", label: "Place de parking à 5 min", price: 18, per: "nuit" }]
+    },
+    corolle: {
+      name: "Appartement Corolle", place: "Colmar, Petite Venise", type: "ville", plateTime: "colmar",
+      guests: 5, rooms: 2, baths: 1, area: 72, cleaning: 70, deposit: 600, density: 0.7,
+      rates: { basse: 110, moyenne: 135, haute: 190 }, minN: { basse: 2, moyenne: 2, haute: 3 }, seasonModel: "ville",
+      extras: [{ id: "wine", label: "Coffret vins d'Alsace (3 bouteilles)", price: 45, per: "séjour" }, { id: "bfast", label: "Panier petit-déjeuner local", price: 14, per: "personne/jour" }, { id: "baby", label: "Lit et chaise bébé", price: 15, per: "séjour" }]
+    },
+    hautronce: {
+      name: "Gîte Haut-Ronce", place: "Hautes-Vosges, près de Gérardmer", type: "vosges",
+      guests: 8, rooms: 4, baths: 3, area: 160, cleaning: 150, deposit: 1000, density: 0.45,
+      rates: { basse: 220, moyenne: 260, haute: 360 }, minN: { basse: 2, moyenne: 2, haute: 7 }, seasonModel: "vosges",
+      extras: [{ id: "spa", label: "Bain nordique chauffé à l'arrivée", price: 40, per: "séjour" }, { id: "wood", label: "Stère de bois supplémentaire", price: 35, per: "séjour" }, { id: "clean", label: "Ménage en milieu de séjour", price: 90, per: "séjour" }]
+    },
     marelys: {
       name: "Villa Marelys", place: "Cap d'Antibes, Côte d'Azur", type: "mer",
-      guests: 10, rooms: 5, baths: 5, area: 280, cleaning: 290, deposit: 3000,
-      rates: { basse: 690, moyenne: 980, haute: 1490 }, minN: { basse: 3, moyenne: 4, haute: 7 }, seasonModel: "littoral"
-    },
-    nevea: {
-      name: "Chalet Névéa", place: "Megève, Haute-Savoie", type: "montagne",
-      guests: 8, rooms: 4, baths: 4, area: 210, cleaning: 260, deposit: 2500,
-      rates: { basse: 420, moyenne: 640, haute: 1240 }, minN: { basse: 2, moyenne: 3, haute: 7 }, seasonModel: "ski"
-    },
-    ombrelle: {
-      name: "Bastide Ombrelle", place: "Luberon, Vaucluse", type: "provence",
-      guests: 12, rooms: 6, baths: 5, area: 340, cleaning: 330, deposit: 2500,
-      rates: { basse: 490, moyenne: 740, haute: 1120 }, minN: { basse: 2, moyenne: 3, haute: 7 }, seasonModel: "littoral"
-    },
-    salvane: {
-      name: "Maison Salvane", place: "Cap Ferret, bassin d'Arcachon", type: "bassin",
-      guests: 6, rooms: 3, baths: 2, area: 140, cleaning: 180, deposit: 1500,
-      rates: { basse: 320, moyenne: 490, haute: 790 }, minN: { basse: 2, moyenne: 3, haute: 7 }, seasonModel: "littoral"
+      guests: 10, rooms: 5, baths: 5, area: 280, cleaning: 290, deposit: 3000, density: 0.4,
+      rates: { basse: 690, moyenne: 980, haute: 1490 }, minN: { basse: 3, moyenne: 4, haute: 7 }, seasonModel: "littoral",
+      extras: [{ id: "chef", label: "Chef à domicile, un dîner", price: 480, per: "séjour" }, { id: "transfer", label: "Transfert depuis l'aéroport de Nice", price: 120, per: "séjour" }, { id: "boat", label: "Location de bateau à la journée", price: 650, per: "séjour" }]
     }
   };
   const TAXE = 3.0; // taxe de séjour estimée, par adulte et par nuit
@@ -49,6 +53,16 @@
 
   function seasonOf(home, d) {
     const m = d.getMonth() + 1, day = d.getDate(), md = m * 100 + day;
+    if (home.seasonModel === "ville") {
+      if (md >= 1127 && md <= 1224) return "haute";
+      if ((m >= 4 && m <= 10) || md >= 1225 || md <= 103) return "moyenne";
+      return "basse";
+    }
+    if (home.seasonModel === "vosges") {
+      if (md >= 1219 || md <= 104 || (md >= 206 && md <= 308) || m === 7 || m === 8) return "haute";
+      if ((md >= 105 && md <= 331) || (m >= 4 && m <= 6) || m === 9 || m === 10) return "moyenne";
+      return "basse";
+    }
     if (home.seasonModel === "ski") {
       if ((md >= 1219 || md <= 105) || (md >= 206 && md <= 308)) return "haute";
       if ((md >= 106 && md <= 405) || (m === 7 || m === 8)) return "moyenne";
@@ -68,15 +82,26 @@
     const set = new Set();
     let d = new Date(today.getTime() + DAY * (2 + Math.floor(r() * 6)));
     const end = today.getTime() + DAY * 400;
+    const dens = (HOMES[id] && HOMES[id].density) || 0.4;
     while (d.getTime() < end) {
-      const len = 3 + Math.floor(r() * 6);
+      const len = 2 + Math.floor(r() * 5);
       for (let i = 0; i < len; i++) set.add(iso(new Date(d.getTime() + i * DAY)));
-      d = new Date(d.getTime() + DAY * (len + 4 + Math.floor(r() * 14)));
+      const gap = Math.max(3, Math.round((len * (1 - dens) / dens) * (0.5 + r())));
+      d = new Date(d.getTime() + DAY * (len + gap));
     }
     return (bookedCache[id] = set);
   }
 
-  function quote(id, a, b, adults) {
+  function extrasCost(h, chosen, n, adults) {
+    let t = 0; const lines = [];
+    (h.extras || []).forEach(x => {
+      if (!chosen || !chosen.includes(x.id)) return;
+      const c = x.per === "nuit" ? x.price * n : x.per === "personne/jour" ? x.price * n * adults : x.price;
+      t += c; lines.push({ label: x.label, cost: c });
+    });
+    return { t, lines };
+  }
+  function quote(id, a, b, adults, chosen) {
     const h = HOMES[id], n = nightsBetween(a, b);
     if (n <= 0) return null;
     let lodging = 0; const bySeason = {};
@@ -86,7 +111,8 @@
     }
     const startSeason = seasonOf(h, a);
     const tax = Math.round(TAXE * adults * n * 100) / 100;
-    return { n, lodging, cleaning: h.cleaning, tax, total: lodging + h.cleaning + tax, min: h.minN[startSeason], startSeason, bySeason };
+    const ex = extrasCost(h, chosen, n, adults);
+    return { n, lodging, cleaning: h.cleaning, tax, extras: ex.lines, total: lodging + h.cleaning + tax + ex.t, min: h.minN[startSeason], startSeason, bySeason };
   }
   window.SEOKRAFT_QUOTE = quote;
 
@@ -145,14 +171,17 @@
         <label class="field">Départ<input type="date" id="${id}-b"></label>
         <label class="field full">Voyageurs adultes<select id="${id}-g">${Array.from({ length: h.guests }, (_, i) => `<option value="${i + 1}"${i + 1 === Math.min(4, h.guests) ? " selected" : ""}>${i + 1}</option>`).join("")}</select></label>
       </div>
+      ${(h.extras || []).length ? `<fieldset class="extras"><legend>Services en option</legend>${h.extras.map(x => `<label class="check" for="${id}-x-${x.id}"><input type="checkbox" id="${id}-x-${x.id}" value="${x.id}"><span>${x.label}<span class="note"> · ${fmt.format(x.price)} / ${x.per}</span></span></label>`).join("")}</fieldset>` : ""}
       <div class="breakdown" aria-live="polite"></div>
       <button type="button" class="btn" data-book disabled>Réserver ces dates</button>
-      <p class="note">Aucun paiement réel : cette maison est fictive et le paiement se fait en mode test.</p>`;
+      <p class="note">Aucun paiement réel : ce logement est fictif et le paiement se fait en mode test.</p>`;
     const grid = el.querySelector(".cal-grid"), month = el.querySelector(".cal-month"), bd = el.querySelector(".breakdown"),
       ia = el.querySelector(`#${id}-a`), ib = el.querySelector(`#${id}-b`), ig = el.querySelector(`#${id}-g`), go = el.querySelector("[data-book]");
     if (saved && saved.g && location.hash === "#" + id) ig.value = String(Math.min(Number(saved.g) || 2, h.guests));
     ia.min = iso(today);
 
+    const chosen = () => [...el.querySelectorAll(".extras input:checked")].map(c => c.value);
+    el.querySelectorAll(".extras input").forEach(c => c.addEventListener("change", () => update()));
     function rangeFree(x, y) { for (let t = x.getTime(); t < y.getTime(); t += DAY) if (booked.has(iso(new Date(t)))) return false; return true; }
 
     function drawCal() {
@@ -176,7 +205,7 @@
       ib.min = a ? iso(new Date(a.getTime() + DAY)) : iso(new Date(today.getTime() + DAY));
       drawCal();
       if (!a || !b) { bd.innerHTML = `<p class="note">Choisissez vos dates pour voir le prix exact, frais compris.</p>`; go.disabled = true; return; }
-      const q = quote(id, a, b, Number(ig.value));
+      const q = quote(id, a, b, Number(ig.value), chosen());
       let warn = "";
       if (!rangeFree(a, b)) warn = "Ces dates chevauchent une réservation existante. Choisissez d'autres dates.";
       else if (q.n < q.min) warn = `En saison ${q.startSeason}, le séjour minimum est de ${q.min} nuits.`;
@@ -186,6 +215,7 @@
         <div class="row note"><span>${seasons}</span></div>
         <div class="row"><span>Ménage de fin de séjour</span><span class="num">${fmt.format(q.cleaning)}</span></div>
         <div class="row"><span>Taxe de séjour estimée</span><span class="num">${fmt2.format(q.tax)}</span></div>
+        ${q.extras.map(x => `<div class="row"><span>${x.label}</span><span class="num">${fmt.format(x.cost)}</span></div>`).join("")}
         <div class="row total"><span>Total</span><span class="num">${fmt2.format(q.total)}</span></div>
         <div class="row note"><span>Frais de service</span><span>0 €</span></div>
         ${warn ? `<p class="msg">${warn}</p>` : ""}`;
@@ -207,13 +237,13 @@
     ia.addEventListener("change", () => { a = ia.value ? parse(ia.value) : null; if (b && a && b <= a) b = null; if (a) view = new Date(a.getFullYear(), a.getMonth(), 1); update(); });
     ib.addEventListener("change", () => { b = ib.value ? parse(ib.value) : null; update(); });
     ig.addEventListener("change", update);
-    go.addEventListener("click", () => openCheckout(id, a, b, Number(ig.value)));
+    go.addEventListener("click", () => openCheckout(id, a, b, Number(ig.value), chosen()));
     update();
   }
 
   /* ---------- Parcours de réservation (démo) ---------- */
-  function openCheckout(id, a, b, adults) {
-    const h = HOMES[id], q = quote(id, a, b, adults);
+  function openCheckout(id, a, b, adults, chosen) {
+    const h = HOMES[id], q = quote(id, a, b, adults, chosen);
     const back = document.createElement("div");
     back.className = "dialog-back";
     back.innerHTML = `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-t">
@@ -275,7 +305,7 @@
         if (!/^(0[1-9]|1[0-2])\/?\d{2}$/.test(exp)) { err.textContent = "Saisissez la date d'expiration au format MM/AA."; err.hidden = false; return; }
         if (!/^\d{3}$/.test(cvc)) { err.textContent = "Le code de sécurité comporte 3 chiffres."; err.hidden = false; return; }
         const pay = body.querySelector("#c-pay"); pay.disabled = true; pay.textContent = "Paiement en cours…";
-        const res = await AUTONOMYA.book({ home: id, arrive: iso(a), depart: iso(b), adults, guest, total: q.total });
+        const res = await AUTONOMYA.book({ home: id, arrive: iso(a), depart: iso(b), adults, extras: chosen, guest, total: q.total });
         s3(res.ref);
       });
     }
@@ -283,7 +313,7 @@
     function s3(ref) {
       step(2);
       body.innerHTML = `<h3 id="dlg-t">Réservation confirmée</h3>
-        <p class="msg ok">Merci ${guest.f}. Votre séjour à ${h.name} est réservé sous la référence <strong class="num">${ref}</strong>.</p>
+        <p class="msg ok">Merci ${guest.f}. Votre réservation pour ${h.name} est confirmée sous la référence <strong class="num">${ref}</strong>.</p>
         ${recap}
         <div class="prose"><p>Dans un vrai séjour, vous recevriez maintenant automatiquement :</p>
         <ul><li>l'e-mail de confirmation et la facture ;</li><li>le lien de check-in en ligne (pièce d'identité, signature, caution) ;</li><li>le livret d'accueil numérique, 3 jours avant l'arrivée ;</li><li>le code de la serrure connectée, le matin de votre arrivée.</li></ul>
@@ -293,31 +323,74 @@
     s1();
   }
 
-  /* ---------- Simulateur propriétaires (page tarifs) ---------- */
-  const sim = document.getElementById("sim");
+  /* ---------- Simulateur propriétaires ---------- */
+  const sim = document.getElementById("sim2");
   if (sim) {
     const $ = s => sim.querySelector(s);
-    const inputs = ["#s-rev", "#s-direct", "#s-airbnb", "#s-booking", "#s-split", "#s-stripe"];
+    const PRESETS = { studio: [85, 74], appart: [130, 68], gite: [250, 55], villa: [900, 40] };
+    $("#p-type").addEventListener("change", () => { const [pr, oc] = PRESETS[$("#p-type").value]; $("#p-price").value = pr; $("#p-occ").value = oc; run(); });
+    sim.querySelectorAll("input").forEach(i => i.addEventListener("input", run));
+    const chart = document.getElementById("ychart");
+
     function run() {
-      const rev = Math.max(0, Number($("#s-rev").value) || 0), direct = Number($("#s-direct").value) / 100,
-        air = Number($("#s-airbnb").value) / 100, boo = Number($("#s-booking").value) / 100,
-        split = Number($("#s-split").value) / 100, stripe = Number($("#s-stripe").value) / 100;
-      $("#s-direct-out").textContent = Math.round(direct * 100) + " %";
-      $("#s-split-out").textContent = `${Math.round(split * 100)} % Airbnb · ${Math.round((1 - split) * 100)} % Booking`;
-      const platformRate = split * air + (1 - split) * boo;
-      const allPlatform = rev * platformRate;
-      const mixed = rev * (1 - direct) * platformRate + rev * direct * stripe;
-      const saved = allPlatform - mixed;
-      const max = Math.max(allPlatform, 1);
-      $("#b-plat").style.width = (allPlatform / max * 100) + "%";
-      $("#b-mix").style.width = (mixed / max * 100) + "%";
-      $("#v-plat").textContent = fmt.format(allPlatform);
-      $("#v-mix").textContent = fmt.format(mixed);
-      $("#v-save").textContent = fmt.format(saved);
-      $("#v-save-m").textContent = fmt.format(saved / 12);
+      const price = Math.max(0, Number($("#p-price").value) || 0), occ = Number($("#p-occ").value) / 100, goal = Number($("#p-goal").value) / 100;
+      const air = Number($("#p-air").value) / 100, boo = Number($("#p-boo").value) / 100, split = Math.min(1, Math.max(0, Number($("#p-split").value) / 100));
+      const pay = Number($("#p-pay").value) / 100, fee = Number($("#p-fee").value) / 100;
+      $("#p-occ-out").textContent = Math.round(occ * 100) + " %";
+      $("#p-goal-out").textContent = Math.round(goal * 100) + " %";
+      const gross = price * 365 * occ, plat = split * air + (1 - split) * boo;
+      const shares = [0, goal * 0.3, goal * 0.65, goal];
+      const years = shares.map(d => {
+        const comm = gross * (1 - d) * plat + gross * d * pay, hon = gross * fee;
+        return { d, gross, comm, hon, net: gross - comm - hon };
+      });
+      const base = years[0].net, save3 = years[3].net - base, cum = years.slice(1).reduce((t, y) => t + y.net - base, 0);
+      $("#o-save").textContent = "+ " + fmt.format(save3);
+      $("#o-save-m").textContent = fmt.format(save3 / 12);
+      $("#o-cum").textContent = fmt.format(cum);
+
+      const rows = [
+        ["Part en direct", y => Math.round(y.d * 100) + " %"],
+        ["Loyers encaissés", y => fmt.format(y.gross)],
+        ["Commissions et frais", y => "− " + fmt.format(y.comm)],
+        ["Honoraires conciergerie", y => "− " + fmt.format(y.hon)],
+        ["Revenu net pour vous", y => fmt.format(y.net)]
+      ];
+      document.getElementById("o-rows").innerHTML = rows.map(([l, f], i) => `<tr${i === rows.length - 1 ? ' class="net"' : ""}><th scope="row">${l}</th>${years.map(y => `<td>${f(y)}</td>`).join("")}</tr>`).join("");
+
+      // Graphique : 4 barres, base zoomée pour que les écarts restent lisibles
+      const max = Math.max(...years.map(y => y.net), 1), min = Math.min(...years.map(y => y.net));
+      const floor = Math.max(0, min - (max - min) * 1.5 - max * 0.05);
+      const labels = ["Aujourd'hui", "Année 1", "Année 2", "Année 3"];
+      chart.innerHTML = `<div class="yaxis"><span>${fmt.format(max)}</span><span>${fmt.format(floor)}</span></div>` + years.map((y, i) => {
+        const h = Math.max(4, (y.net - floor) / (max - floor) * 100);
+        return `<div class="ycol" tabindex="0" aria-label="${labels[i]} : ${fmt.format(y.net)}, ${Math.round(y.d * 100)} % en direct">
+          <span class="yval num">${fmt.format(y.net)}</span>
+          <span class="ybar ${i ? "direct" : "base"}" style="height:${h}%"></span>
+          <span class="ylab">${labels[i]}<small>${Math.round(y.d * 100)} % direct</small></span>
+          <span class="ytip">${labels[i]} · ${fmt.format(y.net)}<br>${i ? "+ " + fmt.format(y.net - base) + " vs plateformes" : "100 % plateformes"}</span>
+        </div>`;
+      }).join("");
     }
-    inputs.forEach(s => $(s).addEventListener("input", run));
     run();
+  }
+
+  /* ---------- Formulaire d'estimation ---------- */
+  const ef = document.getElementById("estim-form");
+  if (ef) {
+    ef.addEventListener("submit", e => {
+      e.preventDefault();
+      const err = ef.querySelector("#e-err"), ok = ef.querySelector("#e-ok");
+      const name = ef.querySelector("#e-name").value.trim(), mail = ef.querySelector("#e-mail").value.trim(), city = ef.querySelector("#e-city").value.trim();
+      ok.hidden = true;
+      if (!city) { err.textContent = "Indiquez la ville du logement."; err.hidden = false; return; }
+      if (!name) { err.textContent = "Indiquez votre nom."; err.hidden = false; return; }
+      if (!/^\S+@\S+\.\S+$/.test(mail)) { err.textContent = "Indiquez une adresse e-mail valide pour recevoir l'estimation."; err.hidden = false; return; }
+      if (!ef.querySelector("#e-rgpd").checked) { err.textContent = "Cochez la case de consentement pour envoyer la demande."; err.hidden = false; return; }
+      err.hidden = true;
+      ok.textContent = `Merci ${name.split(" ")[0]}. Sur le vrai site, votre demande pour ${city} arriverait chez la conciergerie. Ici, rien n'a été envoyé : c'est une démonstration.`;
+      ok.hidden = false; ef.reset();
+    });
   }
 
   /* ---------- Formulaire de contact ---------- */
@@ -340,4 +413,12 @@
 
   /* ---------- Année du pied de page ---------- */
   document.querySelectorAll("[data-year]").forEach(n => n.textContent = new Date().getFullYear());
+})();
+
+/* Cartes notification : léger glissement quand la section entre à l'écran */
+(function () {
+  const stages = document.querySelectorAll(".chip-stage");
+  if (!("IntersectionObserver" in window)) return;
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.3 });
+  stages.forEach(s => io.observe(s));
 })();

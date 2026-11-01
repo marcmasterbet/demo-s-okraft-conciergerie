@@ -19,6 +19,15 @@
     bassin: {
       jour: { s1: "#B2CEDA", s2: "#F4EFE2", sun: "#FBF4DC", sea1: "#86B4BF", sea2: "#4C8798", far: "#8FA697", dune: "#E6D6B1", dune2: "#D2BE92", fg: "#33493A", wood: "#8B6C4E", roof: "#5C4A3B", pool: "#86B4BF", glow: "#FFF8E2" },
       aube: { s1: "#C9B4C4", s2: "#F5E1CC", sun: "#FBE3BE", sea1: "#A9B2C2", sea2: "#6E7F98", far: "#9A9AA3", dune: "#E8D1B6", dune2: "#CDB49A", fg: "#3A4340", wood: "#7D6050", roof: "#544238", pool: "#A9B2C2", glow: "#FFE6C4" }
+    },
+    ville: {
+      jour: { s1: "#9EC0D3", s2: "#EEE8DA", sun: "#FBF1CF", sea1: "#7C9FA8", sea2: "#3E6672", fronts: ["#F2EAD8", "#EAD9B4", "#F5F0E6", "#E3CFA6", "#EFE3CC"], beam: "#5A3C2A", roof: "#9B4E36", roof2: "#7E3F2E", win: "#40565C", fg: "#2F4A3B", wall: "#EDE6D6", wall2: "#CFC4AE", glow: "#FFF6DC" },
+      soir: { s1: "#22304F", s2: "#C98F7A", sun: "#F6D08E", sea1: "#3F4C66", sea2: "#1C2438", fronts: ["#D9C6B0", "#CDB596", "#E0D2C0", "#C4A988", "#D6C2A8"], beam: "#3A2820", roof: "#6E3A2E", roof2: "#552C24", win: "#F4C46C", fg: "#1D2A26", wall: "#3A3A44", wall2: "#2A2A32", glow: "#F6C77A" },
+      colmar: { s1: "#A6C6D6", s2: "#F1EADB", sun: "#FBF1CF", sea1: "#7FA7A2", sea2: "#3F6B66", fronts: ["#E9C46A", "#8FB3C9", "#E5A39A", "#A9C49A", "#F2D7A6"], beam: "#4E3426", roof: "#A1523A", roof2: "#82402F", win: "#3B5157", fg: "#2F4A3B", wall: "#EDE6D6", wall2: "#CFC4AE", glow: "#FFF6DC" }
+    },
+    vosges: {
+      jour: { s1: "#9DBBCF", s2: "#E9EDE6", sun: "#FBF4DC", far: "#8FA6A4", mid: "#5E7A6C", near: "#3D5A48", fg: "#1F3529", ground: "#B8C79E", wood: "#8A5E3B", roof: "#3B2E28", win: "#F3DFA2", steam: "#FFFFFF", glow: "#FFF8E2" },
+      neige: { s1: "#2A3A55", s2: "#8D9DB4", sun: "#EDEBDF", far: "#5D6E85", mid: "#43546A", near: "#2C3B47", fg: "#15211F", ground: "#E6ECF1", wood: "#5E4030", roof: "#241C18", win: "#F5C46A", steam: "#FFFFFF", glow: "#F5C46A" }
     }
   };
 
@@ -152,6 +161,76 @@
       s += umbrellaPine(120, 720, 70, p.fg) + umbrellaPine(300, 700, 56, p.fg);
       return s;
     }
+  };
+
+  // Maisons à colombages au bord de l'eau (Petite France, Petite Venise)
+  SCENES.ville = function (p, r, id, view) {
+    let s = sky(p, id) + sun(p, id, 920, 220, 52);
+    const wl = 640;
+    s += `<rect y="${wl}" width="${W}" height="${H - wl}" fill="url(#se${id})"/>`;
+    let row = "", x = -30, i = 0;
+    while (x < W + 20) {
+      const w = 130 + r() * 70, h = 230 + r() * 150, top = wl - h, front = p.fronts[i % p.fronts.length];
+      const rh = 90 + r() * 70;
+      row += `<rect x="${x}" y="${top}" width="${w}" height="${h}" fill="${front}"/>`;
+      row += `<path d="M${x - 6} ${top + 2} L${x + w / 2} ${top - rh} L${x + w + 6} ${top + 2} Z" fill="${i % 2 ? p.roof : p.roof2}"/>`;
+      // colombages
+      const floors = Math.max(2, Math.floor(h / 80));
+      for (let f = 1; f < floors; f++) row += `<rect x="${x}" y="${top + f * (h / floors)}" width="${w}" height="5" fill="${p.beam}"/>`;
+      row += `<rect x="${x}" y="${top}" width="5" height="${h}" fill="${p.beam}"/><rect x="${x + w - 5}" y="${top}" width="5" height="${h}" fill="${p.beam}"/>`;
+      for (let f = 0; f < floors - 1; f++) {
+        const fy = top + f * (h / floors), fh = h / floors;
+        row += `<path d="M${x + 6} ${fy + fh} L${x + w * 0.28} ${fy + 6} M${x + w - 6} ${fy + fh} L${x + w * 0.72} ${fy + 6}" stroke="${p.beam}" stroke-width="4"/>`;
+        const cols = 2 + Math.floor(r() * 2);
+        for (let c = 0; c < cols; c++) {
+          const wx = x + w * (0.3 + c * (0.4 / Math.max(1, cols - 1))) - 11;
+          if (cols === 2 && c === 1) row += `<rect x="${x + w * 0.62 - 11}" y="${fy + fh * 0.3}" width="22" height="${fh * 0.45}" fill="${p.win}"/>`;
+          else row += `<rect x="${wx}" y="${fy + fh * 0.3}" width="22" height="${fh * 0.45}" fill="${p.win}"/>`;
+        }
+      }
+      row += `<rect x="${x + w / 2 - 12}" y="${top - rh * 0.45}" width="24" height="26" fill="${p.win}"/>`;
+      x += w; i++;
+    }
+    s += row;
+    s += `<g transform="translate(0 ${wl * 2}) scale(1 -1)" opacity=".28">${row}</g>`;
+    s += `<rect y="${wl}" width="${W}" height="${H - wl}" fill="url(#se${id})" opacity=".55"/>`;
+    for (let k = 0; k < 12; k++) s += `<rect x="${r() * W}" y="${wl + 20 + r() * 220}" width="${50 + r() * 160}" height="2" fill="#FFFFFF" opacity=".25"/>`;
+    s += `<rect y="${wl - 14}" width="${W}" height="16" fill="${p.wall2}"/>`;
+    if (view === "fenetre") return s + frame(p);
+    if (view === "piscine") {
+      // barque et saules
+      s += `<path d="M420 760 Q600 800 780 760 L760 780 Q600 812 440 780 Z" fill="${p.beam}"/>`;
+      s += `<path d="M0 640 C80 520 160 560 200 640 Z" fill="${p.fg}"/><path d="M1050 640 C1100 500 1200 520 1200 640 Z" fill="${p.fg}"/>`;
+      return s;
+    }
+    s += `<path d="M0 ${wl} C60 540 150 560 190 ${wl} Z" fill="${p.fg}" opacity=".9"/>`;
+    return s;
+  };
+
+  // Hautes-Vosges : ballons arrondis, sapins, gîte et bain nordique
+  SCENES.vosges = function (p, r, id, view) {
+    let s = sky(p, id) + sun(p, id, 330, 220, 46);
+    if (p === PAL.vosges.neige) for (let i = 0; i < 60; i++) s += `<circle cx="${r() * W}" cy="${r() * 360}" r="${r() * 1.6 + .4}" fill="#FFFFFF" opacity="${.3 + r() * .5}"/>`;
+    s += `<path d="${ridge(r, 440, 50, 4, false)}" fill="${p.far}"/><path d="${ridge(r, 540, 50, 5, false)}" fill="${p.mid}"/>`;
+    for (let i = 0; i < 40; i++) s += fir(r() * W, 540 + r() * 50, 10 + r() * 10, p.near);
+    if (view === "fenetre") return s + `<path d="${ridge(r, 700, 20, 6, false)}" fill="${p.ground}"/>` + frame({ wall: p.wood, wall2: p.roof, glow: p.win });
+    s += `<path d="${ridge(r, 660, 30, 6, false)}" fill="${p.near}"/>`;
+    s += `<path d="${ridge(r, 740, 24, 6, false)}" fill="${p.ground}"/>`;
+    if (view === "piscine") {
+      s += `<rect x="0" y="770" width="${W}" height="130" fill="${p.wood}"/>`;
+      s += `<ellipse cx="560" cy="800" rx="230" ry="50" fill="${p.roof}"/><ellipse cx="560" cy="792" rx="205" ry="38" fill="#6F9EB0"/>`;
+      for (let i = 0; i < 10; i++) s += `<circle cx="${420 + r() * 280}" cy="${760 - r() * 120}" r="${12 + r() * 26}" fill="${p.steam}" opacity=".16"/>`;
+      s += fir(120, 780, 60, p.fg) + fir(1060, 790, 66, p.fg);
+      return s;
+    }
+    s += `<path d="M430 620 L620 500 L810 620 Z" fill="${p.roof}"/>`;
+    s += `<rect x="470" y="618" width="300" height="140" fill="${p.wood}"/>`;
+    s += `<rect x="500" y="648" width="120" height="80" fill="${p.win}"/><rect x="650" y="648" width="70" height="80" fill="${p.win}"/>`;
+    s += `<rect x="455" y="752" width="330" height="10" fill="${p.roof}"/>`;
+    s += `<ellipse cx="900" cy="760" rx="60" ry="14" fill="${p.roof}"/><ellipse cx="900" cy="756" rx="50" ry="9" fill="#6F9EB0"/>`;
+    for (let i = 0; i < 6; i++) s += `<circle cx="${880 + r() * 40}" cy="${735 - r() * 60}" r="${8 + r() * 12}" fill="${p.steam}" opacity=".22"/>`;
+    s += fir(150, 840, 64, p.fg) + fir(260, 860, 46, p.fg) + fir(1080, 850, 70, p.fg);
+    return s;
   };
 
   function frame(p) {
