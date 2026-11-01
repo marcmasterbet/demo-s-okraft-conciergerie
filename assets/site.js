@@ -5,32 +5,34 @@
   "use strict";
 
   /* ---------- Données des logements ---------- */
+  const BFAST = [{ id: "bfast", label: "Petit-déjeuner", price: 6, per: "personne/jour" }];
   const HOMES = {
     heron: {
       name: "Studio Héron", place: "Strasbourg, Petite France", type: "ville",
       guests: 2, rooms: 1, baths: 1, area: 28, cleaning: 45, deposit: 300, density: 0.35,
       rates: { basse: 79, moyenne: 95, haute: 139 }, minN: { basse: 1, moyenne: 1, haute: 2 }, seasonModel: "ville",
-      extras: [{ id: "early", label: "Arrivée anticipée dès 12 h", price: 25, per: "séjour" }, { id: "bfast", label: "Panier petit-déjeuner local", price: 14, per: "personne/jour" }, { id: "park", label: "Place de parking à 5 min", price: 18, per: "nuit" }]
+      extras: BFAST
     },
     corolle: {
       name: "Appartement Corolle", place: "Colmar, Petite Venise", type: "ville", plateTime: "colmar",
       guests: 5, rooms: 2, baths: 1, area: 72, cleaning: 70, deposit: 600, density: 0.7,
       rates: { basse: 110, moyenne: 135, haute: 190 }, minN: { basse: 2, moyenne: 2, haute: 3 }, seasonModel: "ville",
-      extras: [{ id: "wine", label: "Coffret vins d'Alsace (3 bouteilles)", price: 45, per: "séjour" }, { id: "bfast", label: "Panier petit-déjeuner local", price: 14, per: "personne/jour" }, { id: "baby", label: "Lit et chaise bébé", price: 15, per: "séjour" }]
+      extras: BFAST
     },
     hautronce: {
       name: "Gîte Haut-Ronce", place: "Hautes-Vosges, près de Gérardmer", type: "vosges",
       guests: 8, rooms: 4, baths: 3, area: 160, cleaning: 150, deposit: 1000, density: 0.45,
       rates: { basse: 220, moyenne: 260, haute: 360 }, minN: { basse: 2, moyenne: 2, haute: 7 }, seasonModel: "vosges",
-      extras: [{ id: "spa", label: "Bain nordique chauffé à l'arrivée", price: 40, per: "séjour" }, { id: "wood", label: "Stère de bois supplémentaire", price: 35, per: "séjour" }, { id: "clean", label: "Ménage en milieu de séjour", price: 90, per: "séjour" }]
+      extras: BFAST
     },
     marelys: {
       name: "Villa Marelys", place: "Cap d'Antibes, Côte d'Azur", type: "mer",
       guests: 10, rooms: 5, baths: 5, area: 280, cleaning: 290, deposit: 3000, density: 0.4,
       rates: { basse: 690, moyenne: 980, haute: 1490 }, minN: { basse: 3, moyenne: 4, haute: 7 }, seasonModel: "littoral",
-      extras: [{ id: "chef", label: "Chef à domicile, un dîner", price: 480, per: "séjour" }, { id: "transfer", label: "Transfert depuis l'aéroport de Nice", price: 120, per: "séjour" }, { id: "boat", label: "Location de bateau à la journée", price: 650, per: "séjour" }]
+      extras: BFAST
     }
   };
+  const SLUGS = { heron: "studio-heron", corolle: "appartement-corolle", hautronce: "gite-haut-ronce", marelys: "villa-marelys" };
   const TAXE = 3.0; // taxe de séjour estimée, par adulte et par nuit
   window.SEOKRAFT_HOMES = HOMES;
 
@@ -101,13 +103,26 @@
     });
     return { t, lines };
   }
+  /* Prix dynamique : en production, chaque prix de nuit vient du channel manager (tarification dynamique).
+     Ici on le simule : saison × jour de la semaine × demande du jour, arrondi à 5 €. */
+  function nightPrice(id, d) {
+    const h = HOMES[id], s = seasonOf(h, d), dow = d.getDay();
+    let k = (dow === 5 || dow === 6) ? 1.18 : (dow === 0 ? 1.02 : 0.95);
+    let seed = 0; for (const c of id + iso(d)) seed = (seed * 31 + c.charCodeAt(0)) >>> 0;
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    k *= 0.9 + (seed / 4294967296) * 0.22;
+    const daysAhead = Math.round((d - today) / DAY);
+    if (daysAhead >= 0 && daysAhead <= 6 && s !== "haute") k *= 0.9; // dernière minute
+    return Math.max(h.rates.basse, Math.round(h.rates[s] * k / 5) * 5); // jamais sous le prix « à partir de » affiché
+  }
+  window.SEOKRAFT_PRICE = nightPrice;
   function quote(id, a, b, adults, chosen) {
     const h = HOMES[id], n = nightsBetween(a, b);
     if (n <= 0) return null;
     let lodging = 0; const bySeason = {};
     for (let i = 0; i < n; i++) {
       const d = new Date(a.getTime() + i * DAY), s = seasonOf(h, d);
-      lodging += h.rates[s]; bySeason[s] = (bySeason[s] || 0) + 1;
+      lodging += nightPrice(id, d); bySeason[s] = (bySeason[s] || 0) + 1;
     }
     const startSeason = seasonOf(h, a);
     const tax = Math.round(TAXE * adults * n * 100) / 100;
@@ -142,9 +157,9 @@
     quick.addEventListener("submit", e => {
       e.preventDefault();
       const home = quick.querySelector("#q-home").value;
-      store.set("sk-search", { a: qa.value, b: qd.value, g: quick.querySelector("#q-guests").value });
-      const base = quick.getAttribute("data-target") || "logements.html";
-      location.href = base + "#" + home;
+      store.set("sk-search", { h: home, a: qa.value, b: qd.value, g: quick.querySelector("#q-guests").value });
+      const slug = SLUGS[home], base = quick.getAttribute("data-target");
+      if (base) location.href = base + slug; else location.hash = slug;
     });
   }
 
@@ -155,29 +170,31 @@
     const id = el.dataset.home, h = HOMES[id], booked = bookedSet(id);
     const saved = store.get("sk-search");
     let a = null, b = null, view = new Date(today.getFullYear(), today.getMonth(), 1);
-    if (saved && saved.a && saved.b && location.hash === "#" + id) {
+    if (saved && saved.h === id && saved.a && saved.b) {
       const sa = parse(saved.a), sb = parse(saved.b);
       if (sa >= today && sb > sa) { a = sa; b = sb; view = new Date(sa.getFullYear(), sa.getMonth(), 1); }
     }
+    let fromPrice = Infinity;
+    for (let t = 0; t < 120; t++) { const dd = new Date(today.getTime() + t * DAY); if (!booked.has(iso(dd))) fromPrice = Math.min(fromPrice, nightPrice(id, dd)); }
     el.innerHTML = `
-      <div class="booker-head"><span>à partir de <strong class="num">${fmt.format(h.rates.basse)}</strong> / nuit</span><span class="note">jusqu'à ${h.guests} voyageurs</span></div>
+      <div class="booker-head"><span>à partir de <strong class="num">${fmt.format(fromPrice)}</strong> / nuit</span><span class="note">jusqu'à ${h.guests} voyageurs</span></div>
       <div class="cal" aria-label="Calendrier des disponibilités">
         <div class="cal-head"><button type="button" data-nav="-1" aria-label="Mois précédent">‹</button><span class="cal-month" aria-live="polite"></span><button type="button" data-nav="1" aria-label="Mois suivant">›</button></div>
         <div class="cal-grid"></div>
-        <div class="cal-legend"><span>Barré : déjà réservé</span><span>Cliquez l'arrivée, puis le départ</span></div>
+        <div class="cal-legend"><span>Prix par nuit en €, mis à jour chaque jour</span><span>Barré : déjà réservé</span></div>
       </div>
       <div class="fields">
         <label class="field">Arrivée<input type="date" id="${id}-a"></label>
         <label class="field">Départ<input type="date" id="${id}-b"></label>
         <label class="field full">Voyageurs adultes<select id="${id}-g">${Array.from({ length: h.guests }, (_, i) => `<option value="${i + 1}"${i + 1 === Math.min(4, h.guests) ? " selected" : ""}>${i + 1}</option>`).join("")}</select></label>
       </div>
-      ${(h.extras || []).length ? `<fieldset class="extras"><legend>Services en option</legend>${h.extras.map(x => `<label class="check" for="${id}-x-${x.id}"><input type="checkbox" id="${id}-x-${x.id}" value="${x.id}"><span>${x.label}<span class="note"> · ${fmt.format(x.price)} / ${x.per}</span></span></label>`).join("")}</fieldset>` : ""}
+      ${(h.extras || []).length ? `<fieldset class="extras"><legend>Services en option</legend>${h.extras.map(x => `<label class="check" for="${id}-x-${x.id}"><input type="checkbox" id="${id}-x-${x.id}" value="${x.id}"><span>${x.label}<span class="note"> · ${fmt.format(x.price)} ${x.per === "personne/jour" ? "par personne et par jour" : "/ " + x.per}</span></span></label>`).join("")}</fieldset>` : ""}
       <div class="breakdown" aria-live="polite"></div>
       <button type="button" class="btn" data-book disabled>Réserver ces dates</button>
       <p class="note">Aucun paiement réel : ce logement est fictif et le paiement se fait en mode test.</p>`;
     const grid = el.querySelector(".cal-grid"), month = el.querySelector(".cal-month"), bd = el.querySelector(".breakdown"),
       ia = el.querySelector(`#${id}-a`), ib = el.querySelector(`#${id}-b`), ig = el.querySelector(`#${id}-g`), go = el.querySelector("[data-book]");
-    if (saved && saved.g && location.hash === "#" + id) ig.value = String(Math.min(Number(saved.g) || 2, h.guests));
+    if (saved && saved.h === id && saved.g) ig.value = String(Math.min(Number(saved.g) || 2, h.guests));
     ia.min = iso(today);
 
     const chosen = () => [...el.querySelectorAll(".extras input:checked")].map(c => c.value);
@@ -195,7 +212,8 @@
         let cls = isB ? "booked" : "";
         if (a && b && dt >= a && dt <= b) cls += (dt.getTime() === a.getTime() || dt.getTime() === b.getTime()) ? " edge" : " in-range";
         else if (a && !b && dt.getTime() === a.getTime()) cls += " edge";
-        html += `<button type="button" data-d="${k}" class="${cls}" ${past ? "disabled" : ""} aria-label="${dFmtY.format(dt)}${isB ? ", réservé" : ""}">${d}</button>`;
+        const pr = (!past && !isB) ? nightPrice(id, dt) : null;
+        html += `<button type="button" data-d="${k}" class="${cls}" ${past ? "disabled" : ""} aria-label="${dFmtY.format(dt)}${isB ? ", réservé" : pr ? ", " + pr + " euros la nuit" : ""}"><span>${d}</span>${pr ? `<small>${pr}</small>` : ""}</button>`;
       }
       grid.innerHTML = html;
     }
@@ -208,8 +226,7 @@
       const q = quote(id, a, b, Number(ig.value), chosen());
       let warn = "";
       if (!rangeFree(a, b)) warn = "Ces dates chevauchent une réservation existante. Choisissez d'autres dates.";
-      else if (q.n < q.min) warn = `En saison ${q.startSeason}, le séjour minimum est de ${q.min} nuits.`;
-      const seasons = Object.entries(q.bySeason).map(([s, n]) => `${n} nuit${n > 1 ? "s" : ""} en saison ${s}`).join(", ");
+      const seasons = `Prix moyen : ${fmt.format(Math.round(q.lodging / q.n))} la nuit, mis à jour chaque jour`;
       bd.innerHTML = `
         <div class="row"><span>${q.n} nuit${q.n > 1 ? "s" : ""}, du ${dFmt.format(a)} au ${dFmt.format(b)}</span><span class="num">${fmt.format(q.lodging)}</span></div>
         <div class="row note"><span>${seasons}</span></div>
@@ -471,4 +488,57 @@
   if (!("IntersectionObserver" in window)) return;
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.3 });
   stages.forEach(s => io.observe(s));
+})();
+
+/* Visionneuse : clic sur une photo de galerie, flèches, clavier et glissement au doigt */
+(function () {
+  const galleries = document.querySelectorAll(".gallery");
+  galleries.forEach(g => {
+    const plates = [...g.querySelectorAll(".plate")];
+    if (!plates.length) return;
+    const first = plates[0];
+    const badge = document.createElement("span");
+    badge.className = "gallery-count"; badge.textContent = `Voir les ${plates.length} photos`;
+    first.appendChild(badge);
+    plates.forEach((p, i) => {
+      p.tabIndex = 0; p.setAttribute("role", "button");
+      p.setAttribute("aria-label", (p.getAttribute("aria-label") || "Photo") + ", agrandir");
+      p.addEventListener("click", () => open(plates, i));
+      p.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(plates, i); } });
+    });
+  });
+
+  function open(plates, start) {
+    const items = plates.map(p => { const img = p.querySelector("img"); return { src: img ? img.src : "", alt: img ? img.alt : (p.getAttribute("aria-label") || "") }; }).filter(x => x.src);
+    if (!items.length) return;
+    let i = Math.min(start, items.length - 1);
+    const back = document.activeElement;
+    const lb = document.createElement("div");
+    lb.className = "lb"; lb.setAttribute("role", "dialog"); lb.setAttribute("aria-modal", "true"); lb.setAttribute("aria-label", "Visionneuse de photos");
+    lb.innerHTML = `<div class="lb-top"><span class="lb-n" aria-live="polite"></span><button type="button" class="lb-close" aria-label="Fermer la visionneuse">×</button></div>
+      <div class="lb-stage"><img alt=""><button type="button" class="lb-prev" aria-label="Photo précédente">‹</button><button type="button" class="lb-next" aria-label="Photo suivante">›</button></div>
+      <div><p class="lb-caption"></p><div class="lb-dots">${items.map(() => "<span></span>").join("")}</div></div>`;
+    document.body.appendChild(lb);
+    document.body.style.overflow = "hidden";
+    const img = lb.querySelector("img"), n = lb.querySelector(".lb-n"), cap = lb.querySelector(".lb-caption"), dots = [...lb.querySelectorAll(".lb-dots span")];
+    function show() {
+      img.src = items[i].src; img.alt = items[i].alt;
+      n.textContent = `${i + 1} / ${items.length}`; cap.textContent = items[i].alt.replace(/, agrandir$/, "");
+      dots.forEach((d, k) => d.classList.toggle("on", k === i));
+    }
+    const go = d => { i = (i + d + items.length) % items.length; show(); };
+    function close() { lb.remove(); document.body.style.overflow = ""; document.removeEventListener("keydown", key); back && back.focus && back.focus(); }
+    function key(e) { if (e.key === "Escape") close(); else if (e.key === "ArrowRight") go(1); else if (e.key === "ArrowLeft") go(-1); }
+    lb.querySelector(".lb-close").addEventListener("click", close);
+    lb.querySelector(".lb-prev").addEventListener("click", () => go(-1));
+    lb.querySelector(".lb-next").addEventListener("click", () => go(1));
+    lb.addEventListener("click", e => { if (e.target === lb || e.target.classList.contains("lb-stage")) close(); });
+    document.addEventListener("keydown", key);
+    let x0 = null;
+    const stage = lb.querySelector(".lb-stage");
+    stage.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener("touchend", e => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1); x0 = null; });
+    show();
+    lb.querySelector(".lb-close").focus();
+  }
 })();

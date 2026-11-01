@@ -3,22 +3,71 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Seokraft Conciergerie</title>
-<meta name="description" content="Studio à Strasbourg, appartement à Colmar, gîte dans les Vosges, villa sur la Côte d'Azur : quatre logements à réserver en direct, sans frais de service.">
+<title>Locations de vacances en Alsace et Côte d'Azur · Seokraft</title>
+<meta name="description" content="Studio à Strasbourg, appartement à Colmar, gîte dans les Vosges, villa au Cap d'Antibes : réservez en direct, sans frais de service, avec une conciergerie locale.">
 <meta name="robots" content="noindex, nofollow">
-<meta property="og:title" content="Seokraft Conciergerie">
-<meta property="og:description" content="Studio à Strasbourg, appartement à Colmar, gîte dans les Vosges, villa sur la Côte d'Azur : quatre logements à réserver en direct, sans frais de service.">
+<link rel="canonical" href="https://demo-seokraft.fr/">
+<meta name="theme-color" content="#F4F0E8">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Seokraft Conciergerie">
+<meta property="og:title" content="Locations de vacances en Alsace et Côte d'Azur · Seokraft">
+<meta property="og:description" content="Studio à Strasbourg, appartement à Colmar, gîte dans les Vosges, villa au Cap d'Antibes : réservez en direct, sans frais de service, avec une conciergerie locale.">
+<meta property="og:url" content="https://demo-seokraft.fr/">
+<meta property="og:image" content="https://demo-seokraft.fr/assets/og/accueil.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@800&display=swap">
+<link rel="preload" href="/assets/fonts/playfair-display-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/dm-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" href="/assets/img/accueil.jpg" fetchpriority="high">
 <link rel="stylesheet" href="/assets/site.css">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Organization",
+   "@id": "https://demo-seokraft.fr/#organisation",
+   "name": "Seokraft Conciergerie",
+   "url": "https://demo-seokraft.fr/",
+   "email": "contact@demo-seokraft.fr",
+   "telephone": "+33 3 00 00 00 00",
+   "areaServed": [
+    "Strasbourg",
+    "Colmar",
+    "Gérardmer",
+    "Antibes"
+   ],
+   "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Strasbourg",
+    "postalCode": "67000",
+    "addressCountry": "FR"
+   }
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://demo-seokraft.fr/#site",
+   "name": "Seokraft Conciergerie",
+   "url": "https://demo-seokraft.fr/",
+   "inLanguage": "fr-FR",
+   "publisher": {
+    "@id": "https://demo-seokraft.fr/#organisation"
+   }
+  }
+ ]
+}
+</script>
 </head>
 <body>
-<div class="demo-band"><div class="wrap"><span>Site de démonstration : logements et réservations fictifs, paiement en mode test.</span><span>Réalisé par Seokraft avec un channel manager connecté</span></div></div>
+<a class="skip" href="#main">Aller au contenu</a>
+<div class="demo-band"><div class="wrap"><span>Site de démonstration : logements et réservations fictifs, paiement en mode test.</span><span>Démo réalisée par <a href="https://www.seokraft.fr" rel="noopener">Seokraft, studio web à Strasbourg</a></span></div></div>
 <header class="site-head"><div class="wrap">
   <a class="brand" href="/" aria-label="Seokraft Conciergerie, accueil"><span class="brand-name">Seokraft.</span><span class="brand-sub">Conciergerie</span></a>
   <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
-  <nav class="nav" id="nav" aria-label="Navigation principale"><a href="logements.html" data-nav-page="logements">Nos logements</a><a href="tarifs.html" data-nav-page="tarifs">Tarifs</a><a href="proprietaires.html" data-nav-page="proprietaires">Propriétaires</a><a href="a-propos.html" data-nav-page="a-propos">À propos</a><a href="contact.html" data-nav-page="contact">Contact</a><a class="btn small" href="logements.html">Réserver</a></nav>
+  <nav class="nav" id="nav" aria-label="Navigation principale"><a href="/logements" data-nav-page="logements">Nos logements</a><a href="/tarifs" data-nav-page="tarifs">Tarifs</a><a href="/proprietaires" data-nav-page="proprietaires">Propriétaires</a><a href="/a-propos" data-nav-page="a-propos">À propos</a><a href="/contact" data-nav-page="contact">Contact</a><a class="btn small" href="/logements">Réserver</a></nav>
 </div></header>
 <main id="main">
 <section class="hero">
@@ -28,8 +77,8 @@
       <h1>Du studio en ville à la villa, <em>une seule équipe pour vous recevoir.</em></h1>
       <p class="lede">Nous gérons chaque logement comme si c'était le nôtre : arrivée préparée, ménage soigné, quelqu'un de joignable tous les jours. En réservant ici, vous payez le prix juste, sans frais de service.</p>
       <div class="hero-actions">
-        <a class="btn" href="logements.html">Voir les logements</a>
-        <a class="btn ghost" href="tarifs.html">Consulter les tarifs</a>
+        <a class="btn" href="/logements">Voir les logements</a>
+        <a class="btn ghost" href="/tarifs">Consulter les tarifs</a>
       </div>
       <ul class="ticks"><li>0 € de frais de service</li><li>Confirmation immédiate</li><li>Annulation gratuite à 30 jours</li></ul>
     </div>
@@ -38,7 +87,7 @@
     </div>
   </div>
   <div class="wrap">
-    <form class="quick" id="quick" data-target="logements.html" aria-label="Vérifier les disponibilités">
+    <form class="quick" id="quick" data-target="/logements/" aria-label="Vérifier les disponibilités">
       <label for="q-home">Logement<select id="q-home">
         <option value="heron">Studio Héron, Strasbourg</option>
         <option value="corolle">Appartement Corolle, Colmar</option>
@@ -52,6 +101,16 @@
     </form>
   </div>
 </section>
+
+<div class="wrap">
+  <div class="proof" aria-label="La conciergerie en chiffres">
+    <div><strong class="num">4,9/5</strong><span>note moyenne des voyageurs</span></div>
+    <div><strong class="num">8 min</strong><span>délai moyen de réponse, 7 jours sur 7</span></div>
+    <div><strong class="num">62 %</strong><span>des voyageurs reviennent en direct</span></div>
+    <div><strong class="num">0 €</strong><span>de frais de service en réservant ici</span></div>
+  </div>
+  <p class="demo-note" style="margin-top:10px">Chiffres d'exemple, présentés pour la démonstration.</p>
+</div>
 
 <section class="block">
   <div class="wrap">
@@ -67,9 +126,9 @@
           <p class="place">Strasbourg, Petite France</p>
           <h3>Studio Héron</h3>
           <p>Un studio lumineux sous les poutres, avec vue sur l'Ill et les toits de la Petite France. La cathédrale est à dix minutes à pied, le tram à deux.</p>
-          <ul class="facts"><li>2 voyageurs</li><li>28 m²</li><li>Dès 1 nuit</li><li>Arrivée autonome</li></ul>
+          <ul class="facts"><li>2 voyageurs</li><li>28 m²</li><li>Vue sur l'Ill</li><li>Arrivée autonome</li></ul>
           <p class="from">à partir de <strong class="num">79 €</strong> la nuit</p>
-          <p><a class="btn small ghost" href="logements.html#heron">Découvrir le studio</a></p>
+          <p><a class="btn small ghost" href="/logements/studio-heron">Découvrir le studio</a></p>
         </div>
       </article>
       <article class="home-row">
@@ -80,7 +139,7 @@
           <p>Un trois-pièces au premier étage d'une maison du XVIIe siècle, au-dessus de la Lauch. Parfait pour une famille pendant le marché de Noël ou sur la route des vins.</p>
           <ul class="facts"><li>5 voyageurs</li><li>2 chambres</li><li>72 m²</li><li>Très demandé</li></ul>
           <p class="from">à partir de <strong class="num">110 €</strong> la nuit</p>
-          <p><a class="btn small ghost" href="logements.html#corolle">Découvrir l'appartement</a></p>
+          <p><a class="btn small ghost" href="/logements/appartement-corolle">Découvrir l'appartement</a></p>
         </div>
       </article>
       <article class="home-row">
@@ -91,7 +150,7 @@
           <p>Une ancienne ferme rénovée en lisière de forêt, avec bain nordique, sauna et poêle à bois. Les pistes de La Mauselaine sont à quinze minutes.</p>
           <ul class="facts"><li>8 voyageurs</li><li>4 chambres</li><li>160 m²</li><li>Bain nordique</li></ul>
           <p class="from">à partir de <strong class="num">220 €</strong> la nuit</p>
-          <p><a class="btn small ghost" href="logements.html#hautronce">Découvrir le gîte</a></p>
+          <p><a class="btn small ghost" href="/logements/gite-haut-ronce">Découvrir le gîte</a></p>
         </div>
       </article>
       <article class="home-row">
@@ -102,7 +161,7 @@
           <p>Une villa des années 1960 entièrement repensée, posée au-dessus des criques. Piscine à débordement, pinède privée et vue sur la baie des Anges.</p>
           <ul class="facts"><li>10 voyageurs</li><li>5 chambres</li><li>280 m²</li><li>Piscine chauffée</li></ul>
           <p class="from">à partir de <strong class="num">690 €</strong> la nuit</p>
-          <p><a class="btn small ghost" href="logements.html#marelys">Découvrir la villa</a></p>
+          <p><a class="btn small ghost" href="/logements/villa-marelys">Découvrir la villa</a></p>
         </div>
       </article>
     </div>
@@ -134,11 +193,26 @@
     <div class="chip-stage">
       <div data-img="hautronce-2" class="plate" data-plate="vosges" data-time="jour" aria-label="Le bain nordique du Gîte Haut-Ronce au crépuscule"></div>
       <ul class="chips" aria-label="Les étapes automatiques d'un séjour">
-        <li class="chip"><span class="chip-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M9 15l2 2 4-4"/></svg></span><span><strong>Réservation confirmée</strong><small>E-mail et facture envoyés en 3 secondes</small></span><span class="chip-tag">Immédiat</span></li>
+        <li class="chip"><span class="chip-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M9 15l2 2 4-4"/></svg></span><span><strong>Réservation confirmée</strong><small>E-mail et facture envoyés aussitôt</small></span><span class="chip-tag">Immédiat</span></li>
         <li class="chip"><span class="chip-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.8-1.8 2-2.7 3.5-2.7s2.7.9 3.5 2.7M15 9h3M15 13h3"/></svg></span><span><strong>Check-in en ligne validé</strong><small>Pièce d'identité, contrat signé, caution</small></span><span class="chip-tag">J-7</span></li>
         <li class="chip"><span class="chip-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 8h6M9 12h4"/></svg></span><span><strong>Livret d'accueil reçu</strong><small>Wi-Fi, équipements, bonnes adresses</small></span><span class="chip-tag">J-3</span></li>
         <li class="chip"><span class="chip-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14 9l2 2"/></svg></span><span><strong>Code d'accès envoyé</strong><small>Serrure connectée, valable à 16 h</small></span><span class="chip-tag">Jour J</span></li>
       </ul>
+    </div>
+  </div>
+</section>
+
+<section class="block" aria-labelledby="avis-home">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="place">Ils ont séjourné chez nous</p>
+      <h2 id="avis-home">Ce que disent <em style="color:var(--accent)">nos voyageurs.</em></h2>
+      <p class="demo-note">Avis d'exemple, rédigés pour la démonstration : les logements sont fictifs.</p>
+    </div>
+    <div class="reviews">
+      <figure class="review"><span class="stars" aria-label="5 sur 5">★★★★★</span><blockquote>« Le studio est encore plus charmant que sur les photos. L'arrivée autonome a été très simple, et les conseils de restaurants étaient excellents. »</blockquote><figcaption><strong>Thomas et Léa</strong><span>Studio Héron, Strasbourg</span></figcaption></figure>
+      <figure class="review"><span class="stars" aria-label="5 sur 5">★★★★★</span><blockquote>« Le bain nordique sous la neige, le poêle le soir, les enfants dans la luge le matin : exactement ce qu'on cherchait. »</blockquote><figcaption><strong>Julie</strong><span>Gîte Haut-Ronce, Vosges</span></figcaption></figure>
+      <figure class="review"><span class="stars" aria-label="5 sur 5">★★★★★</span><blockquote>« Les enfants ont adoré leur chambre, et nous la vue sur les maisons colorées. Tout était prêt à notre arrivée, jusqu'aux lits faits. »</blockquote><figcaption><strong>Famille Durand</strong><span>Appartement Corolle, Colmar</span></figcaption></figure>
     </div>
   </div>
 </section>
@@ -151,7 +225,7 @@
       <h2>Vous avez un logement <em style="color:var(--accent)">à faire louer&nbsp;?</em></h2>
       <p class="lede">Studio, appartement, maison ou villa : nous prenons tout en charge, des annonces au ménage.</p>
       <p class="muted">Notre méthode : garder Airbnb et Booking pour se faire connaître, puis faire revenir les voyageurs ici, en direct. Chaque séjour réservé sur notre site, c'est une commission de plateforme en moins.</p>
-      <p><a class="btn" href="proprietaires.html#simulateur">Simuler vos revenus</a> <a class="btn ghost" href="proprietaires.html">Confier mon logement</a></p>
+      <p><a class="btn" href="/proprietaires#simulateur">Simuler vos revenus</a> <a class="btn ghost" href="/proprietaires">Confier mon logement</a></p>
     </div>
   </div>
 </section>
@@ -160,14 +234,14 @@
 <footer class="site-foot"><div class="wrap">
   <div class="foot-cols">
     <div><p class="brand-name">Seokraft.</p><p class="muted" style="max-width:32ch;margin-top:8px">Conciergerie de locations courte durée à Strasbourg, Colmar, dans les Vosges et sur la Côte d'Azur.</p></div>
-    <div><h4>Les logements</h4><ul><li><a href="logements.html#heron">Studio Héron</a></li><li><a href="logements.html#corolle">Appartement Corolle</a></li><li><a href="logements.html#hautronce">Gîte Haut-Ronce</a></li><li><a href="logements.html#marelys">Villa Marelys</a></li></ul></div>
-    <div><h4>La conciergerie</h4><ul><li><a href="a-propos.html">À propos</a></li><li><a href="tarifs.html">Tarifs</a></li><li><a href="proprietaires.html">Propriétaires</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div><h4>Les logements</h4><ul><li><a href="/logements/studio-heron">Studio Héron</a></li><li><a href="/logements/appartement-corolle">Appartement Corolle</a></li><li><a href="/logements/gite-haut-ronce">Gîte Haut-Ronce</a></li><li><a href="/logements/villa-marelys">Villa Marelys</a></li></ul></div>
+    <div><h4>La conciergerie</h4><ul><li><a href="/a-propos">À propos</a></li><li><a href="/tarifs">Tarifs</a></li><li><a href="/proprietaires">Propriétaires</a></li><li><a href="/contact">Contact</a></li></ul></div>
     <div><h4>Nous joindre</h4><ul><li>contact@demo-seokraft.fr</li><li class="num">03 00 00 00 00</li><li class="muted">Tous les jours, 8 h à 21 h</li></ul></div>
   </div>
-  <div class="foot-legal"><span>© <span data-year>2026</span> Seokraft Conciergerie, entreprise fictive créée pour la démonstration.</span><span>Paiement sécurisé · Calendriers synchronisés Airbnb et Booking</span></div>
+  <div class="foot-legal"><span>© <span data-year>2026</span> Seokraft Conciergerie, entreprise fictive créée pour la démonstration.</span><span><a href="/mentions-legales">Mentions légales</a> · Paiement sécurisé · Calendriers synchronisés</span></div>
 </div></footer>
 <script>window.SK_IMG={"accueil": "/assets/img/accueil.jpg", "apropos": "/assets/img/apropos.jpg", "corolle-1": "/assets/img/corolle-1.jpg", "corolle-2": "/assets/img/corolle-2.jpg", "corolle-3": "/assets/img/corolle-3.jpg", "hautronce-1": "/assets/img/hautronce-1.jpg", "hautronce-2": "/assets/img/hautronce-2.jpg", "hautronce-3": "/assets/img/hautronce-3.jpg", "heron-1": "/assets/img/heron-1.jpg", "heron-2": "/assets/img/heron-2.jpg", "heron-3": "/assets/img/heron-3.jpg", "marelys-1": "/assets/img/marelys-1.jpg", "marelys-2": "/assets/img/marelys-2.jpg", "marelys-3": "/assets/img/marelys-3.jpg", "proprietaires": "/assets/img/proprietaires.jpg", "strasbourg-soir": "/assets/img/strasbourg-soir.jpg"};</script>
-<script src="/assets/plates.js"></script>
-<script src="/assets/site.js"></script>
+<script src="/assets/plates.js" defer></script>
+<script src="/assets/site.js" defer></script>
 </body>
 </html>
